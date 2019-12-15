@@ -1,0 +1,544 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>@ViewBag.Title - My ASP.NET Application</title>
+    @Styles.Render("~/Content/css")
+    @Scripts.Render("~/bundles/modernizr")
+
+</head>
+<body style="overflow: hidden">
+    <div class="navbar navbar-inverse navbar-fixed-top">
+        <div class="container">
+            <meta name="viewport" content="width=device-width, initial-scale=1">
+            <style>
+                .dropbtn {
+                    background: #000066;
+                    color: white;
+                    padding: 16px;
+                    font-size: 20px;
+                    border: none;
+                    margin-left: -60px;
+                }
+
+                .dropdown {
+                    padding-top: 20px;
+                    position: relative;
+                    display: inline-block;
+                }
+
+                .dropdown-content {
+                    display: none;
+                    position: absolute;
+                    background-color: #f1f1f1;
+                    min-width: 276px;
+                    box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+                    z-index: 1;
+                    margin-left: -60px;
+                }
+
+                    .dropdown-content a {
+                        color: black;
+                        padding: 12px 16px;
+                        text-decoration: none;
+                        display: block;
+                    }
+
+                        .dropdown-content a:hover {
+                            background-color: #ddd;
+                        }
+
+                .dropdown:hover .dropdown-content {
+                    display: block;
+                }
+
+                .dropdown:hover .dropbtn {
+                    background-color: #9999ff;
+                }
+
+                .title {
+                    font-size: 30px;
+                    padding-top: 20px;
+                    color: white;
+                }
+
+                #map {
+                    margin-top: 150px;
+                    height: 70vh;
+                    width: 100%; /* The width is the width of the web page */
+                }
+
+                .buton {
+                    background-color: #000066;
+                    border: none;
+                    color: white;
+                    padding: 15px 32px;
+                    text-align: center;
+                    text-decoration: none;
+                    display: inline-block;
+                    font-size: 16px;
+                    margin: 4px 2px;
+                    cursor: pointer;
+                    margin-bottom: 20px;
+                    margin-top: 20px;
+                }
+
+                .buton1 {
+                    background-color: #000066;
+                    border: none;
+                    color: white;
+                    text-align: center;
+                    text-decoration: none;
+                    display: inline-block;
+                    font-size: 15px;
+                    margin: 4px 2px;
+                    cursor: pointer;
+                    height: 20px;
+                    width: 35 px;
+                }
+
+                marquee {
+                    padding-top: 3px;
+                }
+
+                .rode1, .rode2 {
+                    width: 100%;
+                    height: 18px;
+                    background: #808080;
+                    margin: 0;
+                    margin-top: -7px;
+                }
+
+                .rode1 {
+                    border-top: 2px solid #000000;
+                }
+
+                .rode2 {
+                    border-top: 2px dashed #ffffff;
+                }
+            </style>
+            </head>
+            <body>
+                @if (User.Identity.Name.Equals(""))
+                {<div class="title">
+                        @Html.ActionLink("Travel Smart", "Index", "Home")
+                    </div>
+                }
+                else
+                { <div class="dropdown">
+                        <button class="dropbtn">Alege metoda de deplasare</button>
+                        <form action="/action_page.php">
+                            <div class="dropdown-content">
+                                <input type="radio" name="alegere" onclick="myFunction(this.value)" value="0">  Masina - 0 puncte<br />
+                                <input type="radio" name="alegere" onclick="myFunction(this.value)" value="2">  Autobuz - 3 puncte<br />
+                                <input type="radio" name="alegere" onclick="myFunction(this.value)" value="3">  Bicicleta - 6 puncte<br />
+                                <input type="radio" name="alegere" onclick="myFunction(this.value)" value="3"> Pe jos - 6 puncte<br />
+                                <br />
+                            </div>
+
+                        </form>
+                    </div>
+
+                    <div class="dropbtn">Puncte detinute: <input style="color: black" type="number" id="result" /></div>
+                    <script>
+                        var sum = 0;
+                        function myFunction(alegere) {
+                            document.getElementById("result").value = 0;
+                            var integer = parseInt(alegere);
+                            for (var index = 1; index <= integer; index++)
+                                sum = sum + index;
+                            document.getElementById("result").value = sum;
+
+                        }
+
+                    </script>
+                }
+                <div class="navbar-collapse collapse">
+                    @Html.Partial("_LoginPartial")
+                </div>
+        </div>
+    </div>
+    <table style="margin-top:-10px;">
+        <tr>
+                   <td>
+                <div class="container body-content">
+                    @if (!User.Identity.Name.Equals(""))
+                    {
+                        <div id="map"></div>
+                    }
+                    <script>
+                        // Initialize and add the map
+                        function initMap() {
+                            // The location of Uluru
+                            var uluru = { lat: 45.66910, lng: 25.54934 };
+                            // The map, centered at Uluru
+                            var map = new google.maps.Map(
+                                document.getElementById('map'), { zoom: 14, center: uluru });
+                            // The marker, positioned at Uluru
+                            mapTypeId: 'satellite'
+                            map.setMapTypeId(google.maps.MapTypeId.HYBRID);
+                            var marker = new google.maps.Marker({ position: uluru, map: map });
+                            google.maps.event.addListener(marker, 'click', function () {
+                                map.setZoom(17);
+                                map.setCenter(marker.getPosition());
+                            });
+                            google.maps.event.addListener(map, 'click', function (event) {
+                                placeMarker(map, event.latLng);
+                            });
+
+                            function placeMarker(map, location) {
+                                var marker = new google.maps.Marker({
+                                    position: location,
+                                    map: map
+                                });
+                                var infowindow = new google.maps.InfoWindow({
+                                    content: 'Latitude: ' + location.lat() +
+                                        '<br>Longitude: ' + location.lng()
+
+                                });
+                                var lat = location.lat();
+                                var long = location.lng();
+                                infowindow.open(map, marker);
+                                document.getElementById("lat").innerHTML = lat;
+                                document.getElementById("long").innerHTML = long;
+                            }
+                        }
+                    </script>
+                   <td align="center" style="padding-left:50px; padding-top: 25px;">
+                       @if (!User.Identity.Name.Equals(""))
+                       {@*<input type="text" id="myText" style="margin-top: 60px">*@
+                       <p style="margin-top: 70px;" id="lat"></p>
+                       <p id="long"></p>
+                       @*<input type="text" id="mytext" value="Latitudinea" />*@
+                       <button class="buton" onclick="myFunction1()">Adauga datele</button>
+                       <p>Distanta care trebuie parcursa: </p>
+                       <p id="distanta"></p>
+                       <button class="buton" onclick="startCount()">Incepe traseul!</button><br />
+                       <input type="text" id="txt"><br />
+                       <button class="buton" onclick="stopCount()">Ajuns la destinatie!</button>
+                       <p id="ajuns"></p>
+                       @*<input style="color: black" type="number" id="total" />*@
+                       <br />
+                       <p style="font-size:17px"> Date / Time: <span id="datetime"></span></p>
+
+                       <script>
+                           var dt = new Date();
+                           document.getElementById("datetime").innerHTML = (("0" + dt.getDate()).slice(-2)) + "." + (("0" + (dt.getMonth() + 1)).slice(-2)) + "." + (dt.getFullYear()) + " " + (("0" + dt.getHours()).slice(-2)) + ":" + (("0" + dt.getMinutes()).slice(-2));
+                       </script>
+
+                       <script>
+
+                           var c = 0;
+                           var t;
+                           var timer_is_on = 0;
+                           document.getElementById("total").value = 0;
+                           function timedCount() {
+                               document.getElementById("txt").value = c;
+                               c = c + 1;
+                               t = setTimeout(timedCount, 1000);
+                               document.getElementById("total").value = c - 1;
+
+                           }
+
+                           function startCount() {
+                               if (!timer_is_on) {
+                                   timer_is_on = 1;
+                                   timedCount();
+
+                               }
+                           }
+
+                           function stopCount() {
+                               clearTimeout(t);
+                               timer_is_on = 0;
+                               document.getElementById("ajuns").innerHTML = "Ati ajuns la destinatie!";
+                           }
+
+
+                       </script>
+                       <p id="demo"></p>
+
+                       <script>
+                           function myFunction1() {
+                               var x = document.getElementById("lat").innerHTML;
+                               var y = document.getElementById("long").innerHTML;
+                               var rezultat = calcCrow(45.66910, 25.54934, x, y).toFixed(1);
+                               if (rezultat < 1) {
+                                   document.getElementById("distanta").innerHTML = 1000 * rezultat + " metri";
+                               }
+                               else {
+                                   document.getElementById("distanta").innerHTML = rezultat + "kilometri";
+                               }
+                           }
+                           function calcCrow(lat1, lon1, lat2, lon2) {
+                               var R = 6371; // km
+                               var dLat = toRad(lat2 - lat1);
+                               var dLon = toRad(lon2 - lon1);
+                               var lat1 = toRad(lat1);
+                               var lat2 = toRad(lat2);
+
+                               var a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+                                   Math.sin(dLon / 2) * Math.sin(dLon / 2) * Math.cos(lat1) * Math.cos(lat2);
+                               var c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+                               var d = R * c;
+                               return d;
+                           }
+                           function toRad(Value) {
+                               return Value * Math.PI / 180;
+                           }
+                           /*    var puncte = sum;
+                               var declarareEl = myFunction(alegere);//ceea ce a declarat baiatul nostru
+                               var tipMers;//0 mers pe jos, 1 bicicleta, 2 busu, 3 masina
+                               var distanta = 1;//distanta in metri
+                               var viteza = stopCount();// timpul
+                               var rezultat = puncteCorecte(distanta, viteza);
+                               function puncteCorecte(distanta, timp) {
+                                   return distanta / timp;
+                               }
+                               rezultat = parseFloat(rezultat).toFixed(2);
+                               //document.getElementById("demo").innerHTML ="Ai parcurs distanta de "+distanta +" metri in "+viteza+" secunde. Viteza medie este de "+rezultat+" metri pe secunda.";
+                               if (rezultat > 0 && rezultat < 2)//mers pe jos
+                               {
+                                   tipMers = 0;
+                               }
+                               else if (rezultat >= 2 && rezultat < 4)//mers cu bicicleta
+                               {
+                                   tipMers = 1;
+                               }
+                               else if (rezultat >= 4 && rezultat < 11)//mers cu busu
+                               {
+                                   tipMers = 2;
+                               }
+                               else tipMers = 3;//mers cu masina
+                               if (tipMers == 0) {
+                                   if (declarareEl != tipMers) {
+                                       document.getElementById("demo").innerHTML = "Ai incercat sa trisezi";
+                                       puncte = 0;
+                                   }
+                                   else {
+                                       document.getElementById("demo").innerHTML = "Felicitari, astazi ai ajutat la decongestionarea traficului";
+                                       puncte += 6;
+                                   }
+                               }
+                               else if (tipMers == 1) {
+                                   if (declarareEl != tipMers) {
+                                       document.getElementById("demo").innerHTML = "Ai incercat sa trisezi";
+                                       puncte = 0;
+                                   }
+                                   else {
+                                       document.getElementById("demo").innerHTML = "Felicitari, astazi ai ajutat la decongestionarea traficului";
+                                       puncte += 6;
+                                   }
+                               }
+                               else if (tipMers == 2) {
+                                   if (declarareEl != tipMers) {
+                                       document.getElementById("demo").innerHTML = "Ai incercat sa trisezi";
+                                       puncte = 0;
+                                   }
+                                   else {
+                                       document.getElementById("demo").innerHTML = "Felicitari, astazi ai ajutat la decongestionarea traficului";
+                                       puncte += 3;
+                                   }
+                               }
+                               else if (tipMers == 3) {
+                                   if (declarareEl != tipMers) {
+                                       document.getElementById("demo").innerHTML = "Ai incercat sa trisezi, iti vom lua toate punctele";
+                                       puncte = 0;
+                                   }
+                                   else {
+                                       document.getElementById("demo").innerHTML = "Felicitari, astazi ai mers cu masina, din pacate ";
+                                   }
+                               }*/
+                       </script>
+                       <div class="dropdown" style="margin-top:-20px; margin-left:50px;">
+                           <button class="dropbtn">Alege parcarea</button>
+                           <form action="/action_page.php">
+                               <div class="dropdown-content" style="margin-left:-115px;">
+                                   <input type="radio" name="alegere1" onclick="parcari(this.value)" value="0">  Livada Postei<br />
+                                   <input type="radio" name="alegere1" onclick="parcari(this.value)" value="1">  Parcul Central<br />
+                                   <input type="radio" name="alegere1" onclick="parcari(this.value)" value="2">  Gara<br />
+                                   <input type="radio" name="alegere1" onclick="parcari(this.value)" value="3">  Magnolia<br />
+                                   <input type="radio" name="alegere1" onclick="parcari(this.value)" value="4"> Regina Maria<br />
+                                   <input type="radio" name="alegere1" onclick="parcari(this.value)" value="5"> Hidro<br />
+                                   <br />
+                                   <br />
+                               </div>
+                           </form>
+                       </div>
+                       <br />
+
+                       <input id="result1" style="margin-top: 20px;">
+                       <script>
+                           function parcari(alegere1) {
+                               var arrayVehicleCount = [0, 869, 22, 106, 115, 233];
+                               var totalSpaces = [512, 1240, 953, 400, 210, 700];
+                             
+                               document.getElementById("result1").value = totalSpaces[alegere1] - arrayVehicleCount[alegere1] + " locuri libere din " + totalSpaces[alegere1];
+                           }
+                       </script>
+                   }
+</table>
+    <script async defer
+            src="https://maps.googleapis.com/maps/api/js?key=AIzaSyB-9DWSAywh9UIJJ8AoIz7VKOMYiVfSDjE&callback=initMap">
+    </script>
+    @RenderBody()
+    <hr />
+    </div>
+
+    @Scripts.Render("~/bundles/jquery")
+    @Scripts.Render("~/bundles/bootstrap")
+    @RenderSection("scripts", required: false)
+    @if (User.Identity.Name.Equals(""))
+    {
+
+        <style>
+            * {
+                box-sizing: border-box;
+            }
+
+
+
+            .page {
+                width: 100vw;
+                height: 100vh;
+                background-color: rgba(38, 41, 64, 0.2);
+                z-index: 50;
+                margin-top: -140px;
+            }
+
+            h3 {
+                font-size: 1.5em;
+                font-weight: 700;
+                margin: 0 0 0.1em 0;
+            }
+
+            p {
+                margin: 0.5em 0;
+                font-size: 20px;
+                line-height: 1.3;
+                opacity: 0.9;
+            }
+
+            .more {
+                display: inline-block;
+                font-size: 0.75em;
+                letter-spacing: -0.01em;
+                text-transform: uppercase;
+                border-bottom: 1px solid white;
+            }
+
+            .page-list {
+                display: flex;
+                flex-direction: row;
+                flex-wrap: wrap;
+                align-items: center;
+                justify-content: space-around;
+                padding: 30vh 0;
+            }
+
+            .page-list--link {
+                position: relative;
+                display: block;
+                padding: 1em;
+                width: 47.5%;
+                margin: 60.5px 1.25%;
+                text-decoration: none;
+                color: white;
+                border: 3px solid white;
+                transition: all 0.45s ease-in-out;
+            }
+
+
+                .page-list--link:hover {
+                    margin-top: 0;
+                    margin-bottom: 0;
+                    transition: none;
+                }
+
+                    .page-list--link:hover .page-list--content {
+                        -webkit-animation: bounceUp 0.45s ease-in-out;
+                        animation: bounceUp 0.45s ease-in-out;
+                        transition: opacity 0.25s 0.25s ease-in;
+                        height: 110px;
+                        opacity: 1;
+                    }
+
+            .page-list--content {
+                transition: height 0.25s ease-in-out, opacity 0.25s ease-out;
+                overflow: hidden;
+                height: 0px;
+                opacity: 0;
+            }
+
+            60% {
+                height: 121px;
+            }
+
+            80% {
+                height: 99px;
+            }
+
+            100% {
+                height: 110px;
+            }
+
+            }
+
+            60% {
+                height: 121px;
+            }
+
+            80% {
+                height: 99px;
+            }
+
+            100% {
+                height: 110px;
+            }
+            }
+        </style>
+        <div style="z-index:1">
+            <div class="page">
+                <nav class="page-list">
+                    <a class="page-list--link" href="#">
+                        <h3 class="page-list--title">Obiectivul aplicatiei</h3>
+                        <div class="page-list--content">
+                            <p>Aplicatia noastra isi propune reducerea poluarii din orasele mari prin monitorizarea deplasarii oamenilor din locatia curenta in locatia urmatoare si fluidizarea circulatiei in momentul cautarii unui loc de parcare.</p>
+
+                        </div>
+                    </a><a class="page-list--link" href="#">
+                        <h3 class="page-list--title">Facilitati</h3>
+                        <div class="page-list--content">
+                            <p>Este calculata distanta dintre cele doua locatii si se inregistreaza timpul necesar pentru parcurgerea acesteia. De asemenea, in cazul in care este necesar un loc de parcare, se sugereaza cea mai apropiata parcare libera. </p>
+
+                        </div>
+                    </a><a class="page-list--link" href="#">
+                        <h3 class="page-list--title">Colectezi puncte mergand</h3>
+                        <div class="page-list--content">
+                            <p>Cu ajutorul punctelor obtinute puteti beneficia de multe oferte in magazinele partenere. Printre aceste oferte mentionoam: 10% reducere la Teatrul Sica Alexandrescu, parcare platita cu puncte si o cafea la fiecare 10 puncte.</p>
+
+                        </div>
+                    </a><a class="page-list--link" href="#">
+                        <h3 class="page-list--title">Parteneri</h3>
+                        <div class="page-list--content">
+                            <p>Cinema One, Dodo Pizza, Bershka, Avon, Nike, Decathlon, Jumbo, Taco Bell, eMAG, Istyle </p>
+
+                        </div>
+                    </a>
+                </nav>
+            </div>
+        </div>
+
+        <img src="~/Content/11.jpg" style="background: URL(~/Content/11.jpg); margin-top:-800px; z-index:-1; position:relative">
+        <div style="margin-top:-370px; z-index:1">
+            <marquee behavior="scroll" direction="right">
+                <img src="~/Content/car.png" width="200" height="100">
+            </marquee>
+            <div class="rode1"></div>
+            <div class="rode2"></div>
+        </div>
+
+    }
+</body>
+</html>
